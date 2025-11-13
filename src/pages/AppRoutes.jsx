@@ -1,4 +1,6 @@
 import HomePage from "./home/HomePage";
+import DashboardPage from "./home/DashboardPage";
+import BookingsPage from "./bookings/BookingsPage";
 import Layout from "./Layout";
 import LoginPage from "./auth/LoginPage";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -10,7 +12,8 @@ export default function AppRoutes() {
       {/* Layout Wrapper */}
       <Route element={<Layout />}>
         <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/home" element={<ProtectedRoute element={<HomePage />} />} />
+        <Route path="/dashboard" element={<ProtectedRoute element={<DashboardPage />} />} />
+        <Route path="/bookings" element={<ProtectedRoute element={<BookingsPage />} />} />
       </Route>
 
       {/* Login Page */}
