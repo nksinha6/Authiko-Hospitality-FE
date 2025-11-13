@@ -128,6 +128,7 @@ export default function Sidebar({ show, onClose }) {
       {/* Navigation */}
       <nav className="flex-1 p-3 overflow-y-auto">
         {/* Dashboard */}
+        {/* Dashboard */}
         <NavLink
           to="/dashboard"
           onClick={closeAll}
