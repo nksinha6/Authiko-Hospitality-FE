@@ -9,7 +9,7 @@ export default function AppRoutes() {
     <Routes>
       {/* Layout Wrapper */}
       <Route element={<Layout />}>
-        <Route path="/" element={<Navigate to="/home" replace />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/home" element={<ProtectedRoute element={<HomePage />} />} />
       </Route>
 
