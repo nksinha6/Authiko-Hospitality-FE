@@ -15,10 +15,13 @@ import {
   Users,
 } from "lucide-react";
 
-export default function Sidebar({ show, onClose }) {
+export default function Sidebar({ show, onClose, isOpen, setIsOpen }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout } = useAuth();
+
+  // support both mobile props (show/onClose) and desktop (isOpen/setIsOpen)
+  const visible = typeof isOpen !== "undefined" ? isOpen : show;
   
   const [openCreditBilling, setOpenCreditBilling] = useState(false);
   const [openAccessSettings, setOpenAccessSettings] = useState(false);
@@ -28,13 +31,13 @@ export default function Sidebar({ show, onClose }) {
   useEffect(() => {
     if (
       location.pathname === "/creditoverview" ||
-      location.pathname === "/credit-consumption" ||
-      location.pathname === "/billing-history"
+      location.pathname === "/creditconsumption" ||
+      location.pathname === "/billinghistory"
     ) {
       setOpenCreditBilling(true);
       setOpenAccessSettings(false);
       setOpenGuestVerification(false);
-    } else if (location.pathname === "/access-settings") {
+    } else if (location.pathname === "/accesssettings") {
       setOpenAccessSettings(true);
       setOpenCreditBilling(false);
       setOpenGuestVerification(false);
@@ -55,6 +58,8 @@ export default function Sidebar({ show, onClose }) {
   const handleLogout = () => {
     logout();
     navigate("/login");
+    if (typeof setIsOpen === "function") setIsOpen(false);
+    if (typeof onClose === "function") onClose();
   };
 
   // Close all dropdowns
@@ -74,6 +79,8 @@ export default function Sidebar({ show, onClose }) {
       }
       return newState;
     });
+    // ensure desktop sidebar remains open if provided
+    if (typeof setIsOpen === "function" && visible) setIsOpen(true);
   };
 
   const toggleAccessSettings = () => {
@@ -101,7 +108,7 @@ export default function Sidebar({ show, onClose }) {
   return (
     <div
       className={`fixed top-0 left-0 h-screen bg-white border-r border-gray-200 z-50 overflow-y-auto ${
-        show ? "block" : "hidden md:block"
+        visible ? "block" : "hidden md:block"
       }`}
       style={{
         width: "265px",
@@ -110,7 +117,10 @@ export default function Sidebar({ show, onClose }) {
       {/* Close button for mobile */}
       <button
         className="md:hidden absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-        onClick={onClose}
+        onClick={() => {
+          if (typeof onClose === "function") onClose();
+          if (typeof setIsOpen === "function") setIsOpen(false);
+        }}
       >
         ✕
       </button>
@@ -151,8 +161,8 @@ export default function Sidebar({ show, onClose }) {
             className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium ${
               openCreditBilling || 
               location.pathname === "/creditoverview" ||
-              location.pathname === "/credit-consumption" ||
-              location.pathname === "/billing-history"
+              location.pathname === "/creditconsumption" ||
+              location.pathname === "/billinghistory"
                 ? "bg-blue-50 text-blue-600"
                 : "text-gray-700 hover:bg-gray-50"
             }`}
@@ -188,7 +198,7 @@ export default function Sidebar({ show, onClose }) {
               </NavLink>
 
               <NavLink
-                to="/credit-consumption"
+                to="/creditconsumption"
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-all duration-200 ${
                     isActive
@@ -202,7 +212,7 @@ export default function Sidebar({ show, onClose }) {
               </NavLink>
 
               <NavLink
-                to="/billing-history"
+                to="/billinghistory"
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-all duration-200 ${
                     isActive
@@ -223,7 +233,7 @@ export default function Sidebar({ show, onClose }) {
           <button
             onClick={toggleAccessSettings}
             className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium ${
-              openAccessSettings || location.pathname === "/access-settings"
+              openAccessSettings || location.pathname === "/accesssettings"
                 ? "bg-blue-50 text-blue-600"
                 : "text-gray-700 hover:bg-gray-50"
             }`}
@@ -245,7 +255,7 @@ export default function Sidebar({ show, onClose }) {
           {openAccessSettings && (
             <div className="ml-7 mt-1 space-y-1">
               <NavLink
-                to="/access-settings"
+                to="/accesssettings"
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-all duration-200 ${
                     isActive

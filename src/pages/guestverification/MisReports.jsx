@@ -17,7 +17,7 @@ import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import "../../App.css";
 
-export default function BookingsPage() {
+export default function MisReports() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -213,12 +213,15 @@ export default function BookingsPage() {
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
       {/* Main Content Area */}
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarOpen ? "ml-50" : "ml-20"}`}>
+      <div
+        className={`flex-1 flex flex-col transition-all duration-300`}
+        style={{ marginLeft: sidebarOpen ? 265 : 0 }}
+      >
         {/* Header - Fixed at top */}
-        <Header 
-          title="Bookings" 
+        <Header
+          title="Bookings"
           subtitle="Manage and track all guest bookings"
-          sidebarOpen={sidebarOpen}
+          onSidebarToggle={() => setSidebarOpen((s) => !s)}
         />
 
         {/* Main Content - Scrollable */}

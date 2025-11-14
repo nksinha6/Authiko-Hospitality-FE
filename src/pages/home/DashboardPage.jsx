@@ -124,12 +124,15 @@ export default function DashboardPage() {
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
       {/* Main Content Area */}
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarOpen ? "ml-50" : "ml-20"}`}>
+      <div
+        className={`flex-1 flex flex-col transition-all duration-300`}
+        style={{ marginLeft: sidebarOpen ? 265 : 0 }}
+      >
         {/* Header - Fixed at top */}
-        <Header 
-          title="Dashboard" 
+        <Header
+          title="Dashboard"
           subtitle="Welcome back, monitor your hotel operations at a glance"
-          sidebarOpen={sidebarOpen}
+          onSidebarToggle={() => setSidebarOpen((s) => !s)}
         />
 
         {/* Main Content - Scrollable */}
