@@ -1,272 +1,175 @@
 import React, { useState } from "react";
-import {
-  TrendingUp,
-  CheckCircle,
-  Clock,
-  AlertCircle,
-  Users,
-  Calendar,
-  DollarSign,
-  Home,
-} from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
-import "../../App.css";
+import CommonTable from "../components/commontable/CommonTable";
+import { initialTableData } from "../../utils/tableData";
+import DateFilter from "../components/datehourfilter/DateFilter";
 
 export default function DashboardPage() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [showSidebar, setShowSidebar] = useState(false);
+  const [tableData] = useState(initialTableData);
+  const [filters] = useState({
+    propertyName: "",
+    location: "",
+    propertyId: "",
+    totalRooms: "",
+    activeCheckins: "",
+  });
 
-  // Dashboard Stats
-  const stats = [
+  // KPI Cards Data
+  const kpis = [
+    { title: "Total Properties", value: 42, color: "from-blue-600 to-cyan-600" },
     {
-      icon: Home,
-      label: "Total Rooms",
-      value: "250",
-      color: "from-blue-600 to-cyan-600",
-      bgColor: "bg-blue-50",
-    },
-    {
-      icon: Users,
-      label: "Guests Today",
-      value: "48",
+      title: "Total Check-ins (Current Month)",
+      value: 26,
       color: "from-purple-600 to-pink-600",
-      bgColor: "bg-purple-50",
     },
     {
-      icon: Calendar,
-      label: "Bookings",
-      value: "156",
+      title: "Total Credits (Remaining)",
+      value: 2,
       color: "from-green-600 to-teal-600",
-      bgColor: "bg-green-50",
     },
     {
-      icon: DollarSign,
-      label: "Revenue Today",
-      value: "$8,240",
+      title: "Average Credit Consumption per Day",
+      value: 1,
       color: "from-orange-600 to-red-600",
-      bgColor: "bg-orange-50",
     },
   ];
 
-  // Recent Bookings
-  const recentBookings = [
-    {
-      id: 1,
-      guestName: "Alice Johnson",
-      roomNumber: "301",
-      checkIn: "2025-11-13",
-      checkOut: "2025-11-16",
-      status: "checked-in",
-    },
-    {
-      id: 2,
-      guestName: "Bob Smith",
-      roomNumber: "205",
-      checkIn: "2025-11-14",
-      checkOut: "2025-11-17",
-      status: "pending",
-    },
-    {
-      id: 3,
-      guestName: "Carol White",
-      roomNumber: "412",
-      checkIn: "2025-11-15",
-      checkOut: "2025-11-18",
-      status: "pending",
-    },
-    {
-      id: 4,
-      guestName: "David Brown",
-      roomNumber: "501",
-      checkIn: "2025-11-12",
-      checkOut: "2025-11-13",
-      status: "checked-out",
-    },
+  // Table configuration
+  const headers = [
+    "Property Name",
+    "Location",
+    "Property ID",
+    "Total Rooms",
+    "Active Check-ins (Today)",
   ];
 
-  // Room Status
-  const roomStatus = [
-    { label: "Available", count: 85, color: "bg-green-500" },
-    { label: "Occupied", count: 120, color: "bg-blue-500" },
-    { label: "Maintenance", count: 25, color: "bg-yellow-500" },
-    { label: "Reserved", count: 20, color: "bg-purple-500" },
+  const defaultColumns = [
+    { key: "propertyName", label: "Property Name" },
+    { key: "location", label: "Location" },
+    { key: "propertyId", label: "Property ID" },
+    { key: "totalRooms", label: "Total Rooms" },
+    { key: "activeCheckins", label: "Active Check-ins (Today)" },
   ];
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "checked-in":
-        return "bg-green-100 text-green-800";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "checked-out":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-blue-100 text-blue-800";
-    }
-  };
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "checked-in":
-        return <CheckCircle className="w-4 h-4" />;
-      case "pending":
-        return <Clock className="w-4 h-4" />;
-      case "checked-out":
-        return <AlertCircle className="w-4 h-4" />;
-      default:
-        return null;
-    }
-  };
+  // Apply filters
+  const filteredData = tableData.filter((item) => {
+    return (
+      item.propertyName
+        .toLowerCase()
+        .includes(filters.propertyName.toLowerCase()) &&
+      item.location.toLowerCase().includes(filters.location.toLowerCase()) &&
+      item.propertyId
+        .toLowerCase()
+        .includes(filters.propertyId.toLowerCase()) &&
+      (filters.totalRooms === "" ||
+        item.totalRooms.toString().includes(filters.totalRooms)) &&
+      (filters.activeCheckins === "" ||
+        item.activeCheckins.toString().includes(filters.activeCheckins))
+    );
+  });
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+      <Sidebar show={showSidebar} onClose={() => setShowSidebar(false)} />
 
       {/* Main Content Area */}
-      <div
-        className={`flex-1 flex flex-col transition-all duration-300`}
-        style={{ marginLeft: sidebarOpen ? 265 : 0 }}
-      >
-        {/* Header - Fixed at top */}
-        <Header
-          title="Dashboard"
-          subtitle="Welcome back, monitor your hotel operations at a glance"
-          onSidebarToggle={() => setSidebarOpen((s) => !s)}
-        />
+      <div className="flex-1 md:ml-[265px] flex flex-col">
+        {/* Header */}
+        <Header onSidebarToggle={() => setShowSidebar(true)} />
 
         {/* Main Content - Scrollable */}
-        <div className="flex-1 overflow-auto">
-          <div className="p-8">
-            {/* Stats Grid */}
+        <main className="flex-1 overflow-auto">
+          <div className="p-6">
+            {/* Dashboard Header */}
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Security Command Dashboard
+              </h2>
+            </div>
+
+            {/* KPI Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {stats.map((stat, idx) => (
+              {kpis.map((kpi, index) => (
                 <div
-                  key={idx}
-                  className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-6 border border-gray-100"
+                  key={index}
+                  className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 overflow-hidden"
                 >
-                  <div className="flex items-center justify-between mb-4">
-                    <div
-                      className={`w-12 h-12 bg-gradient-to-br ${stat.color} rounded-lg flex items-center justify-center`}
-                    >
-                      <stat.icon className="w-6 h-6 text-white" />
-                    </div>
-                    <TrendingUp className="w-5 h-5 text-green-500" />
+                  {/* KPI Header */}
+                  <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+                    <h5 className="text-sm font-semibold text-gray-700">
+                      {kpi.title}
+                    </h5>
+                    <button className="text-xs text-blue-600 hover:text-blue-700 font-medium">
+                      View more
+                    </button>
                   </div>
-                  <p className="text-gray-500 text-sm mb-1">{stat.label}</p>
-                  <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+
+                  {/* KPI Body */}
+                  <div className="p-4">
+                    <div className="flex items-end justify-between mb-2">
+                      <div className="text-3xl font-bold text-gray-900">
+                        ${kpi.value.toFixed ? kpi.value.toFixed(2) : kpi.value}
+                      </div>
+                      <TrendingUp className="w-5 h-5 text-green-500" />
+                    </div>
+                    <div className="text-xs text-gray-500 mb-3">
+                      $0.00 previous period
+                    </div>
+
+                    {/* Mini Chart Line */}
+                    <div className="h-12 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg mb-3 flex items-end px-1">
+                      <div className="flex items-end justify-between w-full h-full py-1">
+                        {[30, 50, 40, 70, 60, 80, 90].map((height, i) => (
+                          <div
+                            key={i}
+                            className={`w-1 bg-gradient-to-t ${kpi.color} rounded-full`}
+                            style={{ height: `${height}%` }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="text-xs text-gray-400">
+                      Updated 1:37 PM
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
 
-            {/* Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Recent Bookings */}
-              <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-lg font-bold text-gray-900">Recent Bookings</h2>
-                  <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                    View All
-                  </button>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="bg-gray-50 border-b border-gray-200">
-                      <tr>
-                        <th className="px-4 py-3 text-left font-medium text-gray-700">
-                          Guest Name
-                        </th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-700">
-                          Room
-                        </th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-700">
-                          Check-In
-                        </th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-700">
-                          Check-Out
-                        </th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-700">
-                          Status
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {recentBookings.map((booking) => (
-                        <tr
-                          key={booking.id}
-                          className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                        >
-                          <td className="px-4 py-4 font-medium text-gray-900">
-                            {booking.guestName}
-                          </td>
-                          <td className="px-4 py-4 text-gray-600">{booking.roomNumber}</td>
-                          <td className="px-4 py-4 text-gray-600">{booking.checkIn}</td>
-                          <td className="px-4 py-4 text-gray-600">{booking.checkOut}</td>
-                          <td className="px-4 py-4">
-                            <span
-                              className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                                booking.status
-                              )}`}
-                            >
-                              {getStatusIcon(booking.status)}
-                              {booking.status.charAt(0).toUpperCase() +
-                                booking.status.slice(1)}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+            {/* Date Hours Filter - Placeholder */}
+            <div className="mb-6">
+              {/* Add your DateHoursFilter component here if available */}
+              {/* <DateHoursFilter /> */}
+            </div>
 
-              {/* Room Status */}
-              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                <h2 className="text-lg font-bold text-gray-900 mb-6">Room Status</h2>
-                <div className="space-y-4">
-                  {roomStatus.map((status, idx) => (
-                    <div key={idx}>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-medium text-gray-700">
-                          {status.label}
-                        </span>
-                        <span className="text-sm font-bold text-gray-900">
-                          {status.count}
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className={`${status.color} h-2 rounded-full`}
-                          style={{ width: `${(status.count / 250) * 100}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  ))}
+              <div>
+                <DateFilter />
                 </div>
-
-                {/* Quick Stats */}
-                <div className="mt-8 pt-6 border-t border-gray-200">
-                  <h3 className="text-sm font-bold text-gray-900 mb-4">Quick Stats</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Occupancy Rate</span>
-                      <span className="font-bold text-gray-900">48%</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Avg. Stay</span>
-                      <span className="font-bold text-gray-900">3.2 nights</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Monthly Revenue</span>
-                      <span className="font-bold text-gray-900">$245K</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            {/* Properties Table */}
+            <div>
+              <CommonTable
+                headers={headers}
+                records={filteredData}
+                defaultColumns={defaultColumns}
+              />
             </div>
           </div>
-        </div>
+        </main>
       </div>
+
+      {/* Mobile Sidebar Overlay */}
+      {showSidebar && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={() => setShowSidebar(false)}
+        />
+      )}
     </div>
   );
 }
