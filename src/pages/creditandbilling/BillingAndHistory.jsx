@@ -1,483 +1,381 @@
 import React, { useState } from "react";
 import {
-  Search,
-  Plus,
-  Edit2,
-  Trash2,
-  Eye,
-  CheckCircle,
-  Clock,
-  AlertCircle,
-  Download,
-  ChevronLeft,
-  ChevronRight,
   TrendingUp,
+  TrendingDown,
+  Download,
+  DollarSign,
+  CreditCard,
+  CheckCircle,
+  XCircle,
+  Clock,
+  FileText,
 } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
-import "../../App.css";
+import CommonTable from "../components/commontable/CommonTable";
+import DateFilter from "../components/datehourfilter/DateFilter";
+import { billingData } from "../../utils/tableData";
 
-export default function BillingAndHistory() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+export default function BillingHistory() {
+  const [showSidebar, setShowSidebar] = useState(false);
 
-  // Sample bookings data
-  const [bookings] = useState([
-    {
-      id: "BK001",
-      guestName: "Alice Johnson",
-      roomNumber: "301",
-      roomType: "Deluxe",
-      checkInDate: "2025-11-13",
-      checkOutDate: "2025-11-16",
-      status: "checked-in",
-      nights: 3,
-      totalAmount: 450,
-      phone: "+1-234-567-8900",
-      email: "alice@example.com",
-    },
-    {
-      id: "BK002",
-      guestName: "Bob Smith",
-      roomNumber: "205",
-      roomType: "Standard",
-      checkInDate: "2025-11-14",
-      checkOutDate: "2025-11-17",
-      status: "pending",
-      nights: 3,
-      totalAmount: 300,
-      phone: "+1-234-567-8901",
-      email: "bob@example.com",
-    },
-    {
-      id: "BK003",
-      guestName: "Carol White",
-      roomNumber: "412",
-      roomType: "Suite",
-      checkInDate: "2025-11-15",
-      checkOutDate: "2025-11-18",
-      status: "pending",
-      nights: 3,
-      totalAmount: 600,
-      phone: "+1-234-567-8902",
-      email: "carol@example.com",
-    },
-    {
-      id: "BK004",
-      guestName: "David Brown",
-      roomNumber: "501",
-      roomType: "Deluxe",
-      checkInDate: "2025-11-12",
-      checkOutDate: "2025-11-13",
-      status: "checked-out",
-      nights: 1,
-      totalAmount: 150,
-      phone: "+1-234-567-8903",
-      email: "david@example.com",
-    },
-    {
-      id: "BK005",
-      guestName: "Emma Davis",
-      roomNumber: "102",
-      roomType: "Standard",
-      checkInDate: "2025-11-16",
-      checkOutDate: "2025-11-20",
-      status: "pending",
-      nights: 4,
-      totalAmount: 400,
-      phone: "+1-234-567-8904",
-      email: "emma@example.com",
-    },
-    {
-      id: "BK006",
-      guestName: "Frank Miller",
-      roomNumber: "303",
-      roomType: "Deluxe",
-      checkInDate: "2025-11-17",
-      checkOutDate: "2025-11-19",
-      status: "pending",
-      nights: 2,
-      totalAmount: 300,
-      phone: "+1-234-567-8905",
-      email: "frank@example.com",
-    },
-    {
-      id: "BK007",
-      guestName: "Grace Lee",
-      roomNumber: "405",
-      roomType: "Suite",
-      checkInDate: "2025-11-18",
-      checkOutDate: "2025-11-22",
-      status: "pending",
-      nights: 4,
-      totalAmount: 800,
-      phone: "+1-234-567-8906",
-      email: "grace@example.com",
-    },
-    {
-      id: "BK008",
-      guestName: "Henry Wilson",
-      roomNumber: "201",
-      roomType: "Standard",
-      checkInDate: "2025-11-13",
-      checkOutDate: "2025-11-15",
-      status: "checked-in",
-      nights: 2,
-      totalAmount: 200,
-      phone: "+1-234-567-8907",
-      email: "henry@example.com",
-    },
-  ]);
+  // Calculate billing summary
+  const totalAmountPaid = billingData
+    .filter((invoice) => invoice.status === "paid")
+    .reduce((sum, invoice) => sum + invoice.amountPaid, 0);
 
-  // Stats cards data
-  const stats = [
+  const totalCreditsPurchased = billingData.reduce(
+    (sum, invoice) => sum + invoice.creditsPurchased,
+    0
+  );
+
+  const successfulPayments = billingData.filter(
+    (invoice) => invoice.status === "paid"
+  ).length;
+
+  const pendingOrFailed = billingData.filter(
+    (invoice) => invoice.status === "pending" || invoice.status === "failed"
+  ).length;
+
+  // Billing summary KPIs
+  const billingKPIs = [
     {
-      label: "Total Bookings",
-      value: bookings.length.toString(),
-      color: "from-blue-600 to-cyan-600",
-      bgColor: "bg-blue-50",
-      trend: "+12%",
-    },
-    {
-      label: "Checked In",
-      value: bookings.filter(b => b.status === "checked-in").length.toString(),
+      icon: DollarSign,
+      title: "Total Amount Paid",
+      value: `₹${totalAmountPaid.toLocaleString()}`,
       color: "from-green-600 to-teal-600",
-      bgColor: "bg-green-50",
-      trend: "+5%",
-    },
-    {
-      label: "Pending",
-      value: bookings.filter(b => b.status === "pending").length.toString(),
-      color: "from-orange-600 to-red-600",
-      bgColor: "bg-orange-50",
-      trend: "+8%",
-    },
-    {
-      label: "Total Revenue",
-      value: `$${bookings.reduce((sum, b) => sum + b.totalAmount, 0)}`,
-      color: "from-purple-600 to-pink-600",
-      bgColor: "bg-purple-50",
+      description: "Total payments received",
       trend: "+15%",
+      trendUp: true,
+    },
+    {
+      icon: CreditCard,
+      title: "Total Credits Purchased",
+      value: totalCreditsPurchased.toLocaleString(),
+      color: "from-blue-600 to-cyan-600",
+      description: "Total credits bought",
+      trend: "+12%",
+      trendUp: true,
+    },
+    {
+      icon: CheckCircle,
+      title: "Successful Payments",
+      value: successfulPayments.toString(),
+      color: "from-teal-600 to-green-600",
+      description: "Completed transactions",
+      trend: "+8%",
+      trendUp: true,
+    },
+    {
+      icon: XCircle,
+      title: "Pending/Failed",
+      value: pendingOrFailed.toString(),
+      color: "from-orange-600 to-red-600",
+      description: "Requires attention",
+      trend: "-3%",
+      trendUp: false,
     },
   ];
 
-  // Filter bookings
-  const filtered = bookings.filter((booking) => {
-    const matchesSearch =
-      booking.guestName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.roomNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.id.toLowerCase().includes(searchTerm.toLowerCase());
+  // Table configuration
+  const headers = [
+    "Invoice No.",
+    "Invoice Date",
+    "Credits Purchased",
+    "Payment Mode",
+    "Amount Paid",
+    "Status",
+    "Download Invoice",
+  ];
 
-    const matchesStatus = filterStatus === "all" || booking.status === filterStatus;
+  const defaultColumns = [
+    { key: "invoiceNo", label: "Invoice No." },
+    {
+      key: "invoiceDate",
+      label: "Invoice Date",
+      render: (record) => {
+        const date = new Date(record.invoiceDate);
+        return date.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
+      },
+    },
+    { key: "creditsPurchased", label: "Credits Purchased" },
+    { key: "paymentMode", label: "Payment Mode" },
+    {
+      key: "amountPaid",
+      label: "Amount Paid",
+      render: (record) => `₹${record.amountPaid.toLocaleString()}`,
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: (record) => {
+        const status = record.status;
+        let statusConfig = {
+          paid: {
+            color: "bg-green-100 text-green-800",
+            icon: <CheckCircle className="w-4 h-4" />,
+            label: "Paid",
+          },
+          pending: {
+            color: "bg-yellow-100 text-yellow-800",
+            icon: <Clock className="w-4 h-4" />,
+            label: "Pending",
+          },
+          failed: {
+            color: "bg-red-100 text-red-800",
+            icon: <XCircle className="w-4 h-4" />,
+            label: "Failed",
+          },
+        };
 
-    return matchesSearch && matchesStatus;
-  });
+        const config = statusConfig[status] || statusConfig.pending;
 
-  // Pagination
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
-  const startIdx = (currentPage - 1) * itemsPerPage;
-  const paginatedBookings = filtered.slice(startIdx, startIdx + itemsPerPage);
+        return (
+          <span
+            className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${config.color}`}
+          >
+            {config.icon}
+            {config.label}
+          </span>
+        );
+      },
+    },
+    {
+      key: "downloadUrl",
+      label: "Download Invoice",
+      render: (record) => (
+        <button
+          onClick={() => handleDownloadInvoice(record)}
+          className="flex items-center gap-2 px-3 py-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-sm font-medium"
+        >
+          <Download className="w-4 h-4" />
+          Download
+        </button>
+      ),
+    },
+  ];
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "checked-in":
-        return "bg-green-100 text-green-800";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "checked-out":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-blue-100 text-blue-800";
-    }
-  };
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "checked-in":
-        return <CheckCircle className="w-4 h-4" />;
-      case "pending":
-        return <Clock className="w-4 h-4" />;
-      case "checked-out":
-        return <AlertCircle className="w-4 h-4" />;
-      default:
-        return null;
-    }
+  const handleDownloadInvoice = (invoice) => {
+    // Simulate invoice download
+    console.log("Downloading invoice:", invoice.invoiceNo);
+    alert(`Downloading invoice ${invoice.invoiceNo}`);
   };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+      <Sidebar show={showSidebar} onClose={() => setShowSidebar(false)} />
 
       {/* Main Content Area */}
-      <div
-        className={`flex-1 flex flex-col transition-all duration-300`}
-        style={{ marginLeft: sidebarOpen ? 265 : 0 }}
-      >
-        {/* Header - Fixed at top */}
-        <Header
-          title="Bookings"
-          subtitle="Manage and track all guest bookings"
-          onSidebarToggle={() => setSidebarOpen((s) => !s)}
-        />
+      <div className="flex-1 md:ml-[265px] flex flex-col">
+        {/* Header */}
+        <Header onSidebarToggle={() => setShowSidebar(true)} />
 
         {/* Main Content - Scrollable */}
-        <div className="flex-1 overflow-auto">
-          <div className="p-8">
-            {/* Stats Grid */}
+        <main className="flex-1 overflow-auto">
+          <div className="p-6">
+            {/* Page Header */}
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Billing History
+              </h2>
+              <p className="text-gray-500 text-sm mt-1">
+                View your transaction history and download invoices
+              </p>
+            </div>
+
+            {/* KPI Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {stats.map((stat, idx) => (
+              {billingKPIs.map((kpi, index) => (
                 <div
-                  key={idx}
-                  className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-6 border border-gray-100"
+                  key={index}
+                  className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 overflow-hidden"
                 >
-                  <div className="flex items-center justify-between mb-4">
-                    <div
-                      className={`w-12 h-12 bg-gradient-to-br ${stat.color} rounded-lg flex items-center justify-center`}
-                    >
-                      <TrendingUp className="w-6 h-6 text-white" />
-                    </div>
-                    <span className="text-green-500 text-sm font-medium">
-                      {stat.trend}
-                    </span>
+                  {/* KPI Header */}
+                  <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+                    <h5 className="text-sm font-semibold text-gray-700">
+                      {kpi.title}
+                    </h5>
+                    <button className="text-xs text-blue-600 hover:text-blue-700 font-medium">
+                      View more
+                    </button>
                   </div>
-                  <p className="text-gray-500 text-sm mb-1">{stat.label}</p>
-                  <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+
+                  {/* KPI Body */}
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-12 h-12 bg-gradient-to-br ${kpi.color} rounded-lg flex items-center justify-center`}
+                        >
+                          <kpi.icon className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="text-3xl font-bold text-gray-900">
+                          {kpi.value}
+                        </div>
+                      </div>
+                      <div
+                        className={`flex items-center gap-1 text-sm font-medium ${
+                          kpi.trendUp ? "text-green-600" : "text-red-600"
+                        }`}
+                      >
+                        {kpi.trendUp ? (
+                          <TrendingUp className="w-4 h-4" />
+                        ) : (
+                          <TrendingDown className="w-4 h-4" />
+                        )}
+                        {kpi.trend}
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-500 mb-3">
+                      {kpi.description}
+                    </div>
+
+                    {/* Mini Chart Line */}
+                    <div className="h-12 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg mb-3 flex items-end px-1">
+                      <div className="flex items-end justify-between w-full h-full py-1">
+                        {[30, 50, 40, 70, 60, 80, 90].map((height, i) => (
+                          <div
+                            key={i}
+                            className={`w-1 bg-gradient-to-t ${kpi.color} rounded-full`}
+                            style={{ height: `${height}%` }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="text-xs text-gray-400">Updated 1:37 PM</div>
+                  </div>
                 </div>
               ))}
             </div>
 
-            {/* Content Grid */}
-            <div className="grid grid-cols-1 gap-8">
-              {/* Bookings Table Card */}
-              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                {/* Search and Filters */}
-                <div className="flex flex-col lg:flex-row gap-4 mb-6">
-                  <div className="flex-1 relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <input
-                      type="text"
-                      placeholder="Search by guest name, room number, or booking ID..."
-                      value={searchTerm}
-                      onChange={(e) => {
-                        setSearchTerm(e.target.value);
-                        setCurrentPage(1);
-                      }}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
+            {/* Payment Mode Distribution */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <CreditCard className="w-5 h-5 text-blue-600" />
                   </div>
-                  <div className="flex gap-3">
-                    <select
-                      value={filterStatus}
-                      onChange={(e) => {
-                        setFilterStatus(e.target.value);
-                        setCurrentPage(1);
-                      }}
-                      className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="all">All Status</option>
-                      <option value="pending">Pending</option>
-                      <option value="checked-in">Checked In</option>
-                      <option value="checked-out">Checked Out</option>
-                    </select>
-                    <button className="flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                      <Download className="w-5 h-5" />
-                      Export
-                    </button>
-                    <button className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-6 py-3 rounded-lg hover:shadow-lg transition-all">
-                      <Plus className="w-5 h-5" />
-                      New Booking
-                    </button>
-                  </div>
-                </div>
-
-                {/* Bookings Table */}
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="bg-gray-50 border-b border-gray-200">
-                      <tr>
-                        <th className="px-6 py-4 text-left font-semibold text-gray-700">
-                          Booking ID
-                        </th>
-                        <th className="px-6 py-4 text-left font-semibold text-gray-700">
-                          Guest Name
-                        </th>
-                        <th className="px-6 py-4 text-left font-semibold text-gray-700">
-                          Room
-                        </th>
-                        <th className="px-6 py-4 text-left font-semibold text-gray-700">
-                          Check-In
-                        </th>
-                        <th className="px-6 py-4 text-left font-semibold text-gray-700">
-                          Check-Out
-                        </th>
-                        <th className="px-6 py-4 text-left font-semibold text-gray-700">
-                          Nights
-                        </th>
-                        <th className="px-6 py-4 text-left font-semibold text-gray-700">
-                          Amount
-                        </th>
-                        <th className="px-6 py-4 text-left font-semibold text-gray-700">
-                          Status
-                        </th>
-                        <th className="px-6 py-4 text-left font-semibold text-gray-700">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {paginatedBookings.length > 0 ? (
-                        paginatedBookings.map((booking) => (
-                          <tr
-                            key={booking.id}
-                            className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                          >
-                            <td className="px-6 py-4">
-                              <span className="font-semibold text-gray-900">
-                                {booking.id}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4">
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                  {booking.guestName.charAt(0)}
-                                </div>
-                                <div>
-                                  <p className="font-medium text-gray-900">
-                                    {booking.guestName}
-                                  </p>
-                                  <p className="text-sm text-gray-500">
-                                    {booking.email}
-                                  </p>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4">
-                              <div>
-                                <p className="font-medium text-gray-900">
-                                  Room {booking.roomNumber}
-                                </p>
-                                <p className="text-sm text-gray-500">
-                                  {booking.roomType}
-                                </p>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 text-gray-600">
-                              {booking.checkInDate}
-                            </td>
-                            <td className="px-6 py-4 text-gray-600">
-                              {booking.checkOutDate}
-                            </td>
-                            <td className="px-6 py-4 font-semibold text-gray-900">
-                              {booking.nights}
-                            </td>
-                            <td className="px-6 py-4 font-semibold text-gray-900">
-                              ${booking.totalAmount}
-                            </td>
-                            <td className="px-6 py-4">
-                              <span
-                                className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                                  booking.status
-                                )}`}
-                              >
-                                {getStatusIcon(booking.status)}
-                                {booking.status.charAt(0).toUpperCase() +
-                                  booking.status.slice(1)}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4">
-                              <div className="flex items-center gap-2">
-                                <button 
-                                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                  title="View Details"
-                                >
-                                  <Eye className="w-4 h-4" />
-                                </button>
-                                <button 
-                                  className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                                  title="Edit Booking"
-                                >
-                                  <Edit2 className="w-4 h-4" />
-                                </button>
-                                <button 
-                                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                  title="Delete Booking"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan="9" className="px-6 py-12 text-center">
-                            <div className="flex flex-col items-center justify-center">
-                              <p className="text-gray-500 text-lg mb-2">No bookings found</p>
-                              <p className="text-gray-400 text-sm">
-                                Try adjusting your search or filter criteria
-                              </p>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Pagination */}
-                {totalPages > 1 && (
-                  <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-                    <p className="text-sm text-gray-600">
-                      Showing {startIdx + 1} to{" "}
-                      {Math.min(startIdx + itemsPerPage, filtered.length)} of{" "}
-                      {filtered.length} bookings
+                  <div>
+                    <p className="text-sm text-gray-500">Credit Card</p>
+                    <p className="text-xl font-bold text-gray-900">
+                      {
+                        billingData.filter(
+                          (inv) => inv.paymentMode === "Credit Card"
+                        ).length
+                      }
                     </p>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() =>
-                          setCurrentPage(Math.max(1, currentPage - 1))
-                        }
-                        disabled={currentPage === 1}
-                        className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      >
-                        <ChevronLeft className="w-5 h-5" />
-                      </button>
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                        (page) => (
-                          <button
-                            key={page}
-                            onClick={() => setCurrentPage(page)}
-                            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                              currentPage === page
-                                ? "bg-blue-600 text-white"
-                                : "border border-gray-300 text-gray-700 hover:bg-gray-50"
-                            }`}
-                          >
-                            {page}
-                          </button>
-                        )
-                      )}
-                      <button
-                        onClick={() =>
-                          setCurrentPage(Math.min(totalPages, currentPage + 1))
-                        }
-                        disabled={currentPage === totalPages}
-                        className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      >
-                        <ChevronRight className="w-5 h-5" />
-                      </button>
-                    </div>
                   </div>
-                )}
+                </div>
+              </div>
+              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <DollarSign className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">UPI</p>
+                    <p className="text-xl font-bold text-gray-900">
+                      {billingData.filter((inv) => inv.paymentMode === "UPI").length}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Bank Transfer</p>
+                    <p className="text-xl font-bold text-gray-900">
+                      {
+                        billingData.filter(
+                          (inv) => inv.paymentMode === "Bank Transfer"
+                        ).length
+                      }
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Date Filter */}
+            <DateFilter records={billingData} />
+
+            {/* Billing History Table */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+              <CommonTable
+                headers={headers}
+                records={billingData}
+                defaultColumns={defaultColumns}
+              />
+            </div>
+
+            {/* Table Footer Info */}
+            <div className="mt-6 bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-600">
+                  Showing {billingData.length} of {billingData.length} invoices
+                </div>
+                <div className="text-sm text-gray-500">
+                  Last updated: {new Date().toLocaleString()}
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Status Legend */}
+            <div className="mt-6 bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+              <h4 className="text-sm font-bold text-gray-900 mb-4">
+                Payment Status Legend
+              </h4>
+              <div className="flex flex-wrap gap-6">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <CheckCircle className="w-4 h-4" />
+                    Paid
+                  </span>
+                  <span className="text-sm text-gray-600">
+                    Payment completed successfully
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                    <Clock className="w-4 h-4" />
+                    Pending
+                  </span>
+                  <span className="text-sm text-gray-600">
+                    Payment processing
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                    <XCircle className="w-4 h-4" />
+                    Failed
+                  </span>
+                  <span className="text-sm text-gray-600">
+                    Payment failed or rejected
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </main>
       </div>
+
+      {/* Mobile Sidebar Overlay */}
+      {showSidebar && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={() => setShowSidebar(false)}
+        />
+      )}
     </div>
   );
 }
