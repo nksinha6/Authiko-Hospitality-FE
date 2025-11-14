@@ -126,9 +126,9 @@ export default function Sidebar({ show, onClose, isOpen, setIsOpen }) {
       </button>
 
       {/* Logo Section */}
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">
             A
           </div>
           <h1 className="text-xl font-bold text-gray-900">Authiko</h1>
@@ -330,17 +330,6 @@ export default function Sidebar({ show, onClose, isOpen, setIsOpen }) {
           )}
         </div>
       </nav>
-
-      {/* Logout Button */}
-      <div className="p-3 border-t border-gray-200">
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-all duration-200"
-        >
-          <LogOut className="w-4 h-4 flex-shrink-0" />
-          <span>Sign out</span>
-        </button>
-      </div>
     </div>
   );
 }
