@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext.jsx";
 import { 
   Mail, 
   Lock, 
@@ -12,6 +13,7 @@ import "../../App.css";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -32,9 +34,12 @@ export default function LoginPage() {
     
     // Simulate API call
     setTimeout(() => {
-      localStorage.setItem("authToken", JSON.stringify({ email, password }));
+      // Extract user name from email for display
+      const userName = email.split("@")[0];
+      // Call login with role, user, and token
+      login("hotel-manager", userName, "temp-token-" + Date.now());
       setIsLoading(false);
-      navigate("/home");
+      navigate("/dashboard");
     }, 1000);
   };
 
