@@ -128,7 +128,7 @@ export default function Sidebar({ show, onClose, isOpen, setIsOpen }) {
       {/* Logo Section */}
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center gap-2">
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">
             A
           </div>
           <h1 className="text-xl font-bold text-gray-900">Authiko</h1>
