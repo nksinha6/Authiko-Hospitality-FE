@@ -9,6 +9,7 @@ import BillingAndHistory from "./creditandbilling/BillingAndHistory";
 import AccessAndSettings from "./accessandsettings/AccessAndSettings";
 import StartNewVerification from "./guestverification/StartNewVerification";
 import MisReports from "./guestverification/MisReports";
+import GuestPhoneEntry from "./guestverification/GuestPhoneEntry";
 
 export default function AppRoutes() {
   return (
@@ -22,6 +23,7 @@ export default function AppRoutes() {
         <Route path="/billinghistory" element={<ProtectedRoute element={<BillingAndHistory />} />} />
         <Route path="/accesssettings" element={<ProtectedRoute element={<AccessAndSettings />} />} />
         <Route path="/reservation-entry" element={<ProtectedRoute element={<StartNewVerification />} />} />
+        <Route path="/guest-phone-entry" element={<ProtectedRoute element={<GuestPhoneEntry />} />} />
         <Route path="/mis-report" element={<ProtectedRoute element={<MisReports />} />} />
       </Route>
 
