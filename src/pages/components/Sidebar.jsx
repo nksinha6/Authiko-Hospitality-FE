@@ -138,7 +138,6 @@ export default function Sidebar({ show, onClose, isOpen, setIsOpen }) {
       {/* Navigation */}
       <nav className="flex-1 p-3 overflow-y-auto">
         {/* Dashboard */}
-        {/* Dashboard */}
         <NavLink
           to="/dashboard"
           onClick={closeAll}
@@ -159,11 +158,8 @@ export default function Sidebar({ show, onClose, isOpen, setIsOpen }) {
           <button
             onClick={toggleCreditBilling}
             className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium ${
-              openCreditBilling || 
-              location.pathname === "/creditoverview" ||
-              location.pathname === "/creditconsumption" ||
-              location.pathname === "/billinghistory"
-                ? "bg-blue-50 text-blue-600"
+              openCreditBilling
+                ? "bg-gray-50 text-gray-700"
                 : "text-gray-700 hover:bg-gray-50"
             }`}
             type="button"
@@ -233,8 +229,8 @@ export default function Sidebar({ show, onClose, isOpen, setIsOpen }) {
           <button
             onClick={toggleAccessSettings}
             className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium ${
-              openAccessSettings || location.pathname === "/accesssettings"
-                ? "bg-blue-50 text-blue-600"
+              openAccessSettings
+                ? "bg-gray-50 text-gray-700"
                 : "text-gray-700 hover:bg-gray-50"
             }`}
             type="button"
@@ -276,10 +272,8 @@ export default function Sidebar({ show, onClose, isOpen, setIsOpen }) {
           <button
             onClick={toggleGuestVerification}
             className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium ${
-              openGuestVerification ||
-              location.pathname === "/reservation-entry" ||
-              location.pathname === "/mis-report"
-                ? "bg-blue-50 text-blue-600"
+              openGuestVerification
+                ? "bg-gray-50 text-gray-700"
                 : "text-gray-700 hover:bg-gray-50"
             }`}
             type="button"
