@@ -18,7 +18,7 @@ import Header from "../components/Header";
 import CommonTable from "../components/commontable/CommonTable";
 import DateFilter from "../components/datehourfilter/DateFilter";
 import { guestRecords } from "../../utils/tableData";
-import User1 from "../../assets/images/Profile.jpg";
+import User1 from "../../assets/images/profile.jpg";
 
 const MisReports = () => {
   const [showSidebar, setShowSidebar] = useState(false);
